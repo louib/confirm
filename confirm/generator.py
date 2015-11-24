@@ -63,6 +63,10 @@ def generate_documentation(confirm_file):
 
                 documentation += "** This option is required! **\n"
 
+            if option.get('type'):
+
+                documentation += '*Type : %s.*\n' % option.get('type')
+
             if option.get('description'):
 
                 documentation += option.get('description') + '\n'
