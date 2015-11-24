@@ -24,3 +24,19 @@ class ValidatorTestCase(unittest.TestCase):
         confirmations = yaml.load(StringIO(confirm))
 
         self.assertRaises(validator.MissingRequiredOptionException, validator.validate, config_parser, confirmations)
+
+    def test_empty_required_field(self):
+        config = "[section]\noption1 ="
+
+        confirm = """
+        "section":
+            "option1":
+                "required": true
+        """.strip()
+
+        config_parser = SafeConfigParser()
+        config_parser.readfp(StringIO(config))
+
+        confirmations = yaml.load(StringIO(confirm))
+
+        self.assertRaises(validator.MissingRequiredOptionException, validator.validate, config_parser, confirmations)

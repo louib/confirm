@@ -1,25 +1,29 @@
 # -*- coding: utf-8 -*-
 import sys
 import json
-import yaml
-from validator import validate
+import argparse
 from ConfigParser import SafeConfigParser
 
+import yaml
 
-VALID_OPTIONS = ('required', 'default', 'validator', 'description')
-VALID_BOOLEAN_VALUES = ('True', 'False', '1', '0')
+from validator import validate
+from generator import generate
 
+
+parser = argparse.ArgumentParser(description='Simple Python configuration file validation.')
+parser.add_argument('command', type=str, choices=['generate', 'validate'], help='Command to execute.')
+parser.add_argument('-c', '--conf', dest='conf', help='Configuration file path.')
+parser.add_argument('-s', '--schema', dest='schema', help='Schema file path.')
+
+args = parser.parse_args()
 
 if __name__ == '__main__':
-    config_parser = SafeConfigParser()
-    config_parser.read(sys.argv[1])
 
-    confirm_file_path = sys.argv[2]
-    if confirm_file_path.endswith('json'):
-        confirmations = json.load(open(confirm_file_path, 'r'))
-    elif confirm_file_path.endswith('yaml'):
-        confirmations = yaml.load(open(confirm_file_path, 'r'))
-    else:
-        raise Exception("Invalid confirm file extension : %s." % confirm_file_path.rsplit('.')[-1])
-
-    validate(config_parser, confirmations)
+    schema = yaml.load(open(args.schema, 'r'))
+    if args.command == 'generate':
+        config_parser = generate(schema)
+        config_parser.write(open('template.conf', 'w'))
+    elif args.command == 'validate':
+        config_parser = SafeConfigParser()
+        config_parser.read(args.conf)
+        validate(config_parser, schema)

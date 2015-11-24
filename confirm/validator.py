@@ -37,3 +37,6 @@ def validate_section(config_parser, section, confirmations):
     for required_option in required_options:
         if required_option not in defined_options:
             raise MissingRequiredOptionException("Missing required option %s in section %s" % (required_option, section))
+        elif not config_parser.get(section, required_option):
+            raise MissingRequiredOptionException("Missing required option %s in section %s" % (required_option, section))
+
