@@ -2,6 +2,8 @@
 Main module for the validation functionalities.
 """
 
+VALID_TYPES = ('int', 'float', 'bool', 'list', 'str')
+
 
 class ConfirmException(Exception):
     """
@@ -18,6 +20,10 @@ class MissingRequiredOptionException(ConfirmException):
 
 
 class TypeValidationException(ConfirmException):
+    pass
+
+
+class InvalidTypeException(ConfirmException):
     pass
 
 
@@ -52,6 +58,9 @@ def validate_section(config_parser, section, confirmations):
 
             expected_type = schema_validations.get('type')
             option_value = config_parser.get(section_name, option_name)
+
+            if not expected_type in VALID_TYPES:
+                raise InvalidTypeException("Invalid expected type for option %s : %s." % (option_name, option_value))
 
             try:
                 if expected_type == 'int':

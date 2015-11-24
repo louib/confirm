@@ -78,3 +78,15 @@ class ValidatorTestCase(unittest.TestCase):
         """.strip()
 
         self.assertRaises(validator.TypeValidationException, _call_validate, config, schema)
+
+    def test_invalid_type(self):
+        config = "[section]\noption1 =We don't care about the type here."
+
+        schema = """
+        "section":
+            "option1":
+                "required": true
+                "type": "invalid"
+        """.strip()
+
+        self.assertRaises(validator.InvalidTypeException, _call_validate, config, schema)
