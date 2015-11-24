@@ -7,36 +7,74 @@ from confirm import validator
 import yaml
 
 
+def _call_validate(config_string, schema_string):
+    """
+    Small wrapper to use the standard interface.
+    """
+    config_parser = SafeConfigParser()
+    config_parser.readfp(StringIO(config_string))
+
+    schema = yaml.load(StringIO(schema_string))
+
+    validator.validate(config_parser, schema)
+
+
 class ValidatorTestCase(unittest.TestCase):
 
     def test_missing_required_field(self):
         config = "[section]\noption1 = value1"
 
-        confirm = """
+        schema = """
         "section":
             "option2":
                 "required": true
         """.strip()
 
-        config_parser = SafeConfigParser()
-        config_parser.readfp(StringIO(config))
-
-        confirmations = yaml.load(StringIO(confirm))
-
-        self.assertRaises(validator.MissingRequiredOptionException, validator.validate, config_parser, confirmations)
+        self.assertRaises(validator.MissingRequiredOptionException, _call_validate, config, schema)
 
     def test_empty_required_field(self):
         config = "[section]\noption1 ="
 
-        confirm = """
+        schema = """
         "section":
             "option1":
                 "required": true
         """.strip()
 
-        config_parser = SafeConfigParser()
-        config_parser.readfp(StringIO(config))
+        self.assertRaises(validator.MissingRequiredOptionException, _call_validate, config, schema)
 
-        confirmations = yaml.load(StringIO(confirm))
+    def test_invalid_int(self):
+        config = "[section]\noption1 =not an int!"
 
-        self.assertRaises(validator.MissingRequiredOptionException, validator.validate, config_parser, confirmations)
+        schema = """
+        "section":
+            "option1":
+                "required": true
+                "type": "int"
+        """.strip()
+
+        self.assertRaises(validator.TypeValidationException, _call_validate, config, schema)
+
+    def test_invalid_bool(self):
+        config = "[section]\noption1 =not a bool!"
+
+        schema = """
+        "section":
+            "option1":
+                "required": true
+                "type": "bool"
+        """.strip()
+
+        self.assertRaises(validator.TypeValidationException, _call_validate, config, schema)
+
+    def test_invalid_float(self):
+        config = "[section]\noption1 =not a float!"
+
+        schema = """
+        "section":
+            "option1":
+                "required": true
+                "type": "float"
+        """.strip()
+
+        self.assertRaises(validator.TypeValidationException, _call_validate, config, schema)
