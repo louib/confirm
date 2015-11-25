@@ -1,0 +1,25 @@
+"system":
+    "name":
+        "required": true
+        "description": "Name of the system associated with the server."
+        "type": "str"
+"http_server":
+    "hostname":
+        "required": true
+        "type": "str"
+        "description": "Hostname the HTTP server is bound to."
+        "default": "localhost"
+    "port":
+        "required": true
+        "type": "int"
+        "default": 8088
+        "description": "Port the HTTP server is bound to."
+"threading":
+    "initial_pool_size":
+        "description": "Initial number of thread in the thread pool."
+        "type": "int"
+        "default": 10
+    "maximum_pool_size":
+        "description": "Maximum number of thread in the thread pool."
+        "type": "int"
+        "default": 100

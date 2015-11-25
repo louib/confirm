@@ -23,10 +23,10 @@ if __name__ == '__main__':
     schema = yaml.load(open(args.schema, 'r'))
     if args.command == 'generate':
         config_parser = generate(schema)
-        config_parser.write(open('template.conf', 'w'))
+        config_parser.write(open('/dev/stdout', 'w'))
     elif args.command == 'document':
         documentation = generate_documentation(schema)
-        print(documentation)
+        sys.stdout.write(documentation)
     elif args.command == 'validate':
         config_parser = SafeConfigParser()
         config_parser.read(args.conf)

@@ -27,16 +27,14 @@ class InvalidTypeException(ConfirmException):
     pass
 
 
-def validate(config_parser, confirmations):
+def validate(config_parser, schema):
     for section in config_parser.sections():
-        validate_section(config_parser, section, confirmations)
-
-    # TODO : Add validation for missing sections!.
+        validate_section(config_parser, section, schema)
 
 
-def validate_section(config_parser, section, confirmations):
+def validate_section(config_parser, section, schema):
 
-    confirm_section = confirmations.get(section)
+    confirm_section = schema.get(section)
 
     # Nothing to validate.
     if not confirm_section:
@@ -54,7 +52,7 @@ def validate_section(config_parser, section, confirmations):
     # Type validation.
     for section_name in config_parser.sections():
         for option_name in config_parser.options(section_name):
-            schema_validations = confirmations.get(section_name, {}).get(option_name, {})
+            schema_validations = schema.get(section_name, {}).get(option_name, {})
 
             expected_type = schema_validations.get('type')
             option_value = config_parser.get(section_name, option_name)
