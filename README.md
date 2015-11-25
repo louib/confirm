@@ -1,6 +1,6 @@
 # Confirm
 
-Simple Python configuration file validation.
+Simple Python configuration file management.
 
 ## Development installation
 
