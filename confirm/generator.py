@@ -4,31 +4,43 @@ Module for automatic generation of configuration templates.
 from ConfigParser import ConfigParser
 
 
-def generate(confirm_file):
+def generate_config_parser(config):
     """
-    Generates a configuration template from a Confirm file.
+    Generates a config parser from a configuration dictionary.
 
-    :param confirm_file_path: Dictionary representing the Confirm validations..
-
-    :returns: String representing a template .INI file.
+    The dictionary contains the merged informations of the schema and,
+    optionally, of a source configuration file. Values of the source
+    configuration file will be stored in the *value* field of an option.
     """
+
+    # The allow_no_value allows us to output commented lines.
     config_parser = ConfigParser(allow_no_value=True)
-    for section_name in confirm_file:
-        for option_name in confirm_file[section_name]:
-            option = confirm_file[section_name][option_name]
-            if option.get('required'):
+
+    # We want to make sure that the diff is minimal by sticking to
+    # a specific order.
+    for section_name in sorted(config.keys()):
+        for option_name in sorted(config[section_name].keys()):
+            option = config[section_name][option_name]
+
+            if option.get('required') or option.get('value') is not None:
+
                 if not config_parser.has_section(section_name):
                     config_parser.add_section(section_name)
 
                 config_parser.set(section_name, '# REQUIRED')
                 config_parser.set(section_name, '# ' + option.get('description', 'No description provided.'))
-                if option.get('default'):
+
+                if option.get('value') is not None:
+                    config_parser.set(section_name, option_name, option.get('value'))
+                elif option.get('default'):
                     config_parser.set(section_name, option_name, option.get('default'))
                 else:
                     config_parser.set(section_name, option_name, 'TO FILL')
-            config_parser.set(section_name, '')
+
+                config_parser.set(section_name, '')
 
     return config_parser
+
 
 def generate_documentation(confirm_file):
     """
@@ -76,3 +88,34 @@ def generate_documentation(confirm_file):
                 documentation += 'The default value is %s.\n' % option.get('default')
 
     return documentation
+
+
+def append_existing_values(schema, config_parser):
+    """
+    Adds the values of the existing config to the config dictionary.
+    """
+
+    config = config_parser_to_dict(config_parser)
+
+    for section_name in config:
+        for option_name in config[section_name]:
+            option_value = config[section_name][option_name]
+
+            # Note that we must preserve existing values, wether or not they
+            # exist in the schema file!
+            schema.setdefault(section_name, {}).setdefault(option_name, {})['value'] = option_value
+
+    return schema
+
+
+def config_parser_to_dict(config_parser):
+    """
+    Convert a ConfigParser to a dictionary.
+    """
+    response = {}
+
+    for section in config_parser.sections():
+        for option in config_parser.options(section):
+            response.setdefault(section, {})[option] = config_parser.get(section, option)
+
+    return response
