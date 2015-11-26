@@ -20,4 +20,10 @@ setup(
           'Intended Audience :: System Administrators',
           'Topic :: Utilities',
       ],
+      scripts=[
+          'scripts/migrate.py',
+          'scripts/document.py',
+          'scripts/validate.py',
+          'scripts/generate.py',
+          ]
      )
