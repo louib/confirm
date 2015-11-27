@@ -7,6 +7,51 @@ from confirm import generator
 import yaml
 
 
+class GenerateConfigParserTestCase(unittest.TestCase):
+
+    def test_empty_config(self):
+        config_parser = generator.generate_config_parser({})
+        self.assertFalse(len(config_parser.sections()))
+
+    def test_required(self):
+        config = {"section":
+                     {"option":
+                         {"required": True}
+                     }
+                 }
+        config_parser = generator.generate_config_parser(config)
+        options = config_parser.options('section')
+        self.assertIn('option', options)
+        self.assertIn('# required', options)
+
+        value = config_parser.get('section', 'option')
+        self.assertEqual(value, 'TO FILL')
+
+    def test_required_default(self):
+        config = {"section":
+                     {"option":
+                         {"required": True, "default": 12}
+                     }
+                 }
+        config_parser = generator.generate_config_parser(config)
+        value = config_parser.get('section', 'option')
+        self.assertEqual(value, '12')
+
+    def test_required_default(self):
+        config = {"section":
+                     {"option":
+                         {"required": True, "default": 12, "value": 25}
+                     }
+                 }
+        config_parser = generator.generate_config_parser(config)
+        options = config_parser.options('section')
+        self.assertIn('option', options)
+        self.assertIn('# required', options)
+
+        value = config_parser.get('section', 'option')
+        self.assertEqual(value, '25', "We should use the existing value instead of the default!")
+
+
 class GenerateDocumentationTestCase(unittest.TestCase):
 
     def test_basic_case(self):
