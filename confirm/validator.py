@@ -28,8 +28,8 @@ class InvalidTypeException(ConfirmException):
 
 
 def validate(config_parser, schema):
-    for section in config_parser.sections():
-        validate_section(config_parser, section, schema)
+    for section_name in schema:
+        validate_section(config_parser, section_name, schema)
 
 
 def validate_section(config_parser, section, schema):
@@ -41,8 +41,12 @@ def validate_section(config_parser, section, schema):
         return
 
     # Required fields validation.
-    defined_options = [option for option, value in config_parser.items(section)]
     required_options = [option for option in confirm_section if confirm_section[option].get('required')]
+
+    if required_options and not config_parser.has_section(section):
+        raise MissingRequiredSectionException("Missing required section %s." % section)
+
+    defined_options = [option for option, value in config_parser.items(section)]
     for required_option in required_options:
         if required_option not in defined_options:
             raise MissingRequiredOptionException("Missing required option %s in section %s" % (required_option, section))

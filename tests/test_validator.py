@@ -21,6 +21,17 @@ def _call_validate(config_string, schema_string):
 
 class ValidatorTestCase(unittest.TestCase):
 
+    def test_required_field_in_missing_section(self):
+        config = "[sectiona]\noptiona = valuea"
+
+        schema = """
+        "sectionb":
+            "optionb":
+                "required": true
+        """.strip()
+
+        self.assertRaises(validator.MissingRequiredSectionException, _call_validate, config, schema)
+
     def test_missing_required_field(self):
         config = "[section]\noption1 = value1"
 
