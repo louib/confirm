@@ -3,3 +3,8 @@
 build/
 dist/
 confirm.egg-info/
+bin/
+include/
+lib/
+local/
+man/
