@@ -47,11 +47,11 @@ def _get_value(option):
         return 'TO FILL'
 
 
-def generate_documentation(confirm_file):
+def generate_documentation(schema):
     """
     Generates reStructuredText documentation from a Confirm file.
 
-    :param confirm_file_path: Dictionary representing the Confirm validations..
+    :param schema: Dictionary representing the Confirm schema.
 
     :returns: String representing the reStructuredText documentation.
     """
@@ -59,12 +59,12 @@ def generate_documentation(confirm_file):
     documentation = "Configuration documentation\n"
     documentation += "---------------------------\n"
 
-    for section_name in confirm_file:
+    for section_name in schema:
         section_created = False
 
-        for option_name in confirm_file[section_name]:
+        for option_name in schema[section_name]:
 
-            option = confirm_file[section_name][option_name]
+            option = schema[section_name][option_name]
 
             if not section_created:
                 documentation += '\n'
