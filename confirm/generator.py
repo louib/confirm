@@ -30,16 +30,21 @@ def generate_config_parser(config):
                 config_parser.set(section_name, '# REQUIRED')
                 config_parser.set(section_name, '# ' + option.get('description', 'No description provided.'))
 
-                if option.get('value') is not None:
-                    config_parser.set(section_name, option_name, option.get('value'))
-                elif option.get('default'):
-                    config_parser.set(section_name, option_name, option.get('default'))
-                else:
-                    config_parser.set(section_name, option_name, 'TO FILL')
+                option_value = _get_value(option)
+                config_parser.set(section_name, option_name, option_value)
 
                 config_parser.set(section_name, '')
 
     return config_parser
+
+
+def _get_value(option):
+    if option.get('value') is not None:
+        return str(option.get('value'))
+    elif option.get('default'):
+        return str(option.get('default'))
+    else:
+        return 'TO FILL'
 
 
 def generate_documentation(confirm_file):
