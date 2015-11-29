@@ -51,6 +51,41 @@ class GenerateConfigParserTestCase(unittest.TestCase):
         value = config_parser.get('section', 'option')
         self.assertEqual(value, '25', "We should use the existing value instead of the default!")
 
+    def test_required_no_default_no_value(self):
+        config = {"section":
+                     {"option":
+                         {"required": True}
+                     }
+                 }
+        config_parser = generator.generate_config_parser(config)
+        options = config_parser.options('section')
+        self.assertIn('option', options)
+        self.assertIn('# required', options)
+
+        value = config_parser.get('section', 'option')
+        self.assertEqual(value, 'TO FILL')
+
+    def test_options(self):
+        config = {"section":
+                     {"optiona":
+                         {"required": True, "default": 'DA',  "value": 'VA'},
+                      "optionb":
+                         {"required": True, "default": 'DB'}
+                     }
+                 }
+
+        config_parser = generator.generate_config_parser(config)
+        options = config_parser.options('section')
+
+        self.assertIn('optiona', options)
+        value = config_parser.get('section', 'optiona')
+        self.assertEqual(value, 'VA')
+
+        self.assertIn('optionb', options)
+        value = config_parser.get('section', 'optionb')
+        self.assertEqual(value, 'DB')
+
+    
 
 class GenerateDocumentationTestCase(unittest.TestCase):
 
