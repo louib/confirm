@@ -126,3 +126,21 @@ class GenerateDocumentationTestCase(unittest.TestCase):
                                  )
 
         self.assertEqual(documentation, expected_documentation)
+
+    def test_default(self):
+        confirm = """
+        "section":
+            "option":
+                "default": "1"
+        """.strip()
+        
+        schema = yaml.load(StringIO(confirm))
+        documentation = generator.generate_documentation(schema)
+
+        expected_documentation = (
+                                  "Configuration documentation\n---------------------------\n\n"
+                                  "section\n=======\n\n"
+                                  "option\n======\nThe default value is 1.\n"
+                                 )
+                                 
+        self.assertEqual(documentation, expected_documentation)
