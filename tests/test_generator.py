@@ -85,7 +85,26 @@ class GenerateConfigParserTestCase(unittest.TestCase):
         value = config_parser.get('section', 'optionb')
         self.assertEqual(value, 'DB')
 
-    
+    def test_generate_include_all(self):
+        config = {"section":
+                     {"optiona":
+                         {"required": True, "default": 'DA',  "value": 'VA'},
+                      "optionb":
+                         {"default": 'DB'}
+                     }
+                 }
+
+        config_parser = generator.generate_config_parser(config)
+        options = config_parser.options('section')
+        self.assertNotIn('optionb', options)
+
+        config_parser = generator.generate_config_parser(config, include_all=True)
+        options = config_parser.options('section')
+        self.assertIn('optionb', options)
+
+        value = config_parser.get('section', 'optionb')
+        self.assertEqual(value, 'DB')
+
 
 class GenerateDocumentationTestCase(unittest.TestCase):
 

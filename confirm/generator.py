@@ -4,7 +4,7 @@ Module for automatic generation of configuration templates.
 from ConfigParser import ConfigParser
 
 
-def generate_config_parser(config):
+def generate_config_parser(config, include_all=False):
     """
     Generates a config parser from a configuration dictionary.
 
@@ -22,12 +22,14 @@ def generate_config_parser(config):
         for option_name in sorted(config[section_name].keys()):
             option = config[section_name][option_name]
 
-            if option.get('required') or option.get('value') is not None:
+            if _include_in_config(option) or include_all:
 
                 if not config_parser.has_section(section_name):
                     config_parser.add_section(section_name)
 
-                config_parser.set(section_name, '# REQUIRED')
+                if option.get('required'):
+                    config_parser.set(section_name, '# REQUIRED')
+
                 config_parser.set(section_name, '# ' + option.get('description', 'No description provided.'))
 
                 option_value = _get_value(option)
@@ -36,6 +38,12 @@ def generate_config_parser(config):
                 config_parser.set(section_name, '')
 
     return config_parser
+
+
+def _include_in_config(option):
+    # We include an option if it is required, or if
+    # it was already specified in the original configuration file.
+    return option.get('required') or option.get('value') is not None
 
 
 def _get_value(option):
