@@ -132,3 +132,20 @@ def config_parser_to_dict(config_parser):
             response.setdefault(section, {})[option] = config_parser.get(section, option)
 
     return response
+
+
+def generate_schema_file(config_parser, config_file_content):
+    """
+    Generates a confirm schema file from a configuration file.
+    """
+    config = config_parser_to_dict(config_parser)
+    schema = {}
+
+    for section_name in config:
+        for option_name in config[section_name]:
+            schema.setdefault(section_name, {}).setdefault(option_name, {})
+            schema[section_name][option_name]['description'] = 'No description provided.'
+
+    # TODO (louib) : Add type inference.
+
+    return schema
