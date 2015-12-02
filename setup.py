@@ -24,6 +24,7 @@ setup(
       ],
       scripts=[
           'scripts/migrate.py',
+          'scripts/init.py',
           'scripts/document.py',
           'scripts/validate.py',
           'scripts/generate.py',

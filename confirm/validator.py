@@ -1,6 +1,8 @@
 """
 Main module for the validation functionalities.
 """
+from confirm.utils import config_parser_to_dict
+
 
 VALID_TYPES = ('int', 'float', 'bool', 'list', 'str')
 
@@ -27,49 +29,58 @@ class InvalidTypeException(ConfirmException):
     pass
 
 
-def validate(config_parser, schema):
+def validate_config(config_parser, schema):
+
+    config = config_parser_to_dict(config_parser)
+
     for section_name in schema:
-        validate_section(config_parser, section_name, schema)
+
+        section_options = schema[section_name].values()
+        section_has_required_option = any(option for option in section_options if option.get('required'))
+        if section_has_required_option and not config.get(section_name):
+            raise MissingRequiredSectionException("Missing required section %s." % section_name)
+
+        validate_section(config, section_name, schema)
 
 
-def validate_section(config_parser, section, schema):
+def validate_section(config, section_name, schema):
 
-    confirm_section = schema.get(section)
-
-    # Nothing to validate.
-    if not confirm_section:
-        return
+    confirm_section = schema.get(section_name)
 
     # Required fields validation.
-    required_options = [option for option in confirm_section if confirm_section[option].get('required')]
+    for option_name in schema[section_name]:
+        option_is_required = schema[section_name][option_name].get('required')
+        option_is_present = config[section_name].get(option_name)
 
-    if required_options and not config_parser.has_section(section):
-        raise MissingRequiredSectionException("Missing required section %s." % section)
-
-    defined_options = [option for option, value in config_parser.items(section)]
-    for required_option in required_options:
-        if required_option not in defined_options:
-            raise MissingRequiredOptionException("Missing required option %s in section %s" % (required_option, section))
-        elif not config_parser.get(section, required_option):
-            raise MissingRequiredOptionException("Missing required option %s in section %s" % (required_option, section))
+        if option_is_required and not option_is_present:
+            raise MissingRequiredOptionException("Missing required option %s in section %s" % (option_name, section_name))
 
     # Type validation.
-    for section_name in config_parser.sections():
-        for option_name in config_parser.options(section_name):
-            schema_validations = schema.get(section_name, {}).get(option_name, {})
+    for option_name in schema[section_name]:
 
-            expected_type = schema_validations.get('type')
-            option_value = config_parser.get(section_name, option_name)
+        option_value = config[section_name].get(option_name)
+        option_schema = schema[section_name][option_name]
+        validate_option_type(option_name, option_value, option_schema)
 
-            if not expected_type in VALID_TYPES:
-                raise InvalidTypeException("Invalid expected type for option %s : %s." % (option_name, option_value))
 
-            try:
-                if expected_type == 'int':
-                    config_parser.getint(section_name, option_name)
-                elif expected_type == 'bool':
-                    config_parser.getboolean(section_name, option_name)
-                elif expected_type == 'float':
-                    config_parser.getfloat(section_name, option_name)
-            except ValueError:
-                raise TypeValidationException("Invalid value for type %s : %s." % (expected_type, option_value))
+def validate_option_type(option_name, option_value, option_schema):
+
+    expected_type = option_schema.get('type')
+
+    # No type validation to perform.
+    if not expected_type:
+        return
+
+    if not expected_type in VALID_TYPES:
+        raise InvalidTypeException("Invalid expected type for option %s : %s." % (option_name, option_value))
+
+    try:
+        if expected_type == 'int':
+            int(option_value)
+        elif expected_type == 'bool':
+            if not option_value.lower() in ('true', 'false', '1', '0'):
+               raise ValueError()
+        elif expected_type == 'float':
+            float(option_value)
+    except ValueError:
+        raise TypeValidationException("Invalid value for type %s : %s." % (expected_type, option_value))

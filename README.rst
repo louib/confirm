@@ -6,12 +6,14 @@ Simple Python configuration file management.
 Development installation
 ------------------------
 
-.. code:: bash
+.. code::
+
   mkvirtualenv confirm
   pip install -r requirements.txt
 
 Tests
 -----
 
-.. code:: bash
+.. code::
+
   nosetests -sx tests/
