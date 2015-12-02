@@ -49,8 +49,6 @@ def validate_config(config_parser, schema):
 
 def validate_section(config, section_name, schema):
 
-    confirm_section = schema.get(section_name)
-
     # Required fields validation.
     for option_name in schema[section_name]:
         option_is_required = schema[section_name][option_name].get('required')
@@ -75,7 +73,7 @@ def validate_option_type(option_name, option_value, option_schema):
     if not expected_type:
         return
 
-    if not expected_type in VALID_TYPES:
+    if expected_type not in VALID_TYPES:
         raise InvalidTypeException("Invalid expected type for option %s : %s." % (option_name, option_value))
 
     try:
