@@ -3,6 +3,8 @@ Module for automatic generation of configuration templates.
 """
 from ConfigParser import ConfigParser
 
+from confirm.utils import config_parser_to_dict
+
 
 def generate_config_parser(config, include_all=False):
     """
@@ -119,19 +121,6 @@ def append_existing_values(schema, config_parser):
             schema.setdefault(section_name, {}).setdefault(option_name, {})['value'] = option_value
 
     return schema
-
-
-def config_parser_to_dict(config_parser):
-    """
-    Convert a ConfigParser to a dictionary.
-    """
-    response = {}
-
-    for section in config_parser.sections():
-        for option in config_parser.options(section):
-            response.setdefault(section, {})[option] = config_parser.get(section, option)
-
-    return response
 
 
 def generate_schema_file(config_parser, config_file_content):

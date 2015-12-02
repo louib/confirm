@@ -16,7 +16,7 @@ def _call_validate(config_string, schema_string):
 
     schema = yaml.load(StringIO(schema_string))
 
-    validator.validate(config_parser, schema)
+    validator.validate_config(config_parser, schema)
 
 
 class ValidatorTestCase(unittest.TestCase):

@@ -1,4 +1,4 @@
-Copyright (c) 2015 Outbox/AXS
+Copyright (c) 2015 AXS
 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
