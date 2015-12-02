@@ -40,6 +40,10 @@ def validate_config(config_parser, schema):
         if section_has_required_option and not config.get(section_name):
             raise MissingRequiredSectionException("Missing required section %s." % section_name)
 
+        # Section is not required and not present : nothing to validate.
+        if not config.get(section_name):
+            continue
+
         validate_section(config, section_name, schema)
 
 
