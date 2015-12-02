@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import sys
 import argparse
 from ConfigParser import SafeConfigParser
 
