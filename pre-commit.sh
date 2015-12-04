@@ -13,15 +13,15 @@ fi
 # check that there aren't any
 # set_trace() left in the code
 #
-set_traces=$(git diff --cached | grep -r "set_trace" src/ | grep '^\+')
+set_traces=$(git diff --cached | grep -r "set_trace" confirm/ | grep '^\+')
 if [[ ! -z "$set_traces" ]] ; then
     echo  "You have pdb.set_trace() in your code! Commit aborted!"
     git diff --cached --name-only | xargs grep --color --with-filename -n set_trace
     exit 1
 fi
 
-flake8_warnings=$(flake8 scripts/ confirm/)
+flake8_warnings=$(flake8 --ignore E501 scripts/ confirm/)
 if [[ $? -gt 0 ]] ; then
-    flake8 scripts/ confirm/
+    flake8 --ignore E501 scripts/ confirm/
     exit 1
 fi

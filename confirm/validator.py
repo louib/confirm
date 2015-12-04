@@ -12,10 +12,10 @@ def validate_config(config_parser, schema, detect_typos=False):
     config = config_parser_to_dict(config_parser)
 
     result = {
-            'error': [],
-            'warning': [],
-            'info': []
-            }
+        'error': [],
+        'warning': [],
+        'info': []
+    }
 
     for section_name in schema:
 
@@ -58,9 +58,9 @@ def validate_section(config, section_name, schema, detect_typos, result):
         if option_is_required and not option_is_present:
             if best_match:
                 result['error'].append(
-                        "Missing required option %s in section %s "
-                        "(%s is a possible typo!)." % (option_name, section_name, best_match)
-                        )
+                    "Missing required option %s in section %s "
+                    "(%s is a possible typo!)." % (option_name, section_name, best_match)
+                )
             else:
                 result['error'].append("Missing required option %s in section %s." % (option_name, section_name))
 

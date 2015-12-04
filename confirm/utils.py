@@ -3,6 +3,7 @@ from difflib import get_close_matches
 
 DEFAULT_TYPO_RATIO = 0.7
 
+
 def config_parser_to_dict(config_parser):
     """
     Convert a ConfigParser to a dictionary.
