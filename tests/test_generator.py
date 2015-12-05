@@ -94,58 +94,58 @@ class GenerateConfigParserTestCase(unittest.TestCase):
 
 class GenerateDocumentationTestCase(unittest.TestCase):
 
+    def _call_generate_documentation(self, schema_string):
+        schema = yaml.load(StringIO(schema_string))
+        return generator.generate_documentation(schema)
+
     def test_basic_case(self):
-        confirm = """
+        schema = """
         "section":
             "option":
                 "required": true
                 "description": "This is a description."
         """.strip()
 
-        schema = yaml.load(StringIO(confirm))
-        documentation = generator.generate_documentation(schema)
+        documentation = self._call_generate_documentation(schema).split('\n')
 
-        expected_documentation = (
-                                  "Configuration documentation\n---------------------------\n\n"
-                                  "section\n=======\n\n"
-                                  "option\n======\n** This option is required! **\nThis is a description.\n"
-                                 )
-
-        self.assertEqual(documentation, expected_documentation)
+        self.assertIn("Configuration documentation", documentation)
+        self.assertIn("section", documentation)
+        self.assertIn("option", documentation)
+        self.assertIn("This is a description.", documentation)
 
     def test_option_with_type(self):
-        confirm = """
+        schema = """
         "section":
             "option":
                 "required": true
                 "type": "bool"
         """.strip()
 
-        schema = yaml.load(StringIO(confirm))
-        documentation = generator.generate_documentation(schema)
+        documentation = self._call_generate_documentation(schema).split('\n')
 
-        expected_documentation = (
-                                  "Configuration documentation\n---------------------------\n\n"
-                                  "section\n=======\n\n"
-                                  "option\n======\n** This option is required! **\n*Type : bool.*\n"
-                                 )
+        self.assertIn("*Type : bool.*", documentation)
 
-        self.assertEqual(documentation, expected_documentation)
+    def test_deprecated(self):
+        schema = """
+        "section":
+            "option":
+                "required": true
+                "deprecated": true
+                "type": "bool"
+        """.strip()
+
+        documentation = self._call_generate_documentation(schema).split('\n')
+
+        self.assertIn('** This option is deprecated! **', documentation)
+        self.assertIn('** This option is required! **', documentation)
 
     def test_default(self):
-        confirm = """
+        schema = """
         "section":
             "option":
                 "default": "1"
         """.strip()
-        
-        schema = yaml.load(StringIO(confirm))
-        documentation = generator.generate_documentation(schema)
 
-        expected_documentation = (
-                                  "Configuration documentation\n---------------------------\n\n"
-                                  "section\n=======\n\n"
-                                  "option\n======\nThe default value is 1.\n"
-                                 )
-                                 
-        self.assertEqual(documentation, expected_documentation)
+        documentation = self._call_generate_documentation(schema).split('\n')
+
+        self.assertIn("The default value is 1.", documentation)
