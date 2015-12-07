@@ -7,7 +7,7 @@ from confirm.utils import config_parser_to_dict, get_most_probable_typo
 VALID_TYPES = ('int', 'float', 'bool', 'list', 'str')
 
 
-def validate_config(config_parser, schema, detect_typos=False):
+def validate_config(config_parser, schema, detect_typos=False, error_on_deprecated=False):
 
     config = config_parser_to_dict(config_parser)
 
@@ -21,13 +21,21 @@ def validate_config(config_parser, schema, detect_typos=False):
 
         section_options = schema[section_name].values()
         section_has_required_option = any(option for option in section_options if option.get('required'))
+        section_is_deprecated = all(option.get('deprecated') for option in section_options)
         section_is_present = config.get(section_name)
 
         best_match = None
         if detect_typos and not section_is_present:
             best_match = get_most_probable_typo(section_name, config.keys())
 
-        if section_has_required_option and not section_is_present:
+        # Note that if a section is deprecated, we do not perform any further validation!
+        if section_is_deprecated and section_is_present:
+            if error_on_deprecated:
+                result['error'].append("Deprecated section %s is present!" % section_name)
+            else:
+                result['warning'].append("Deprecated section %s is present!" % section_name)
+
+        elif section_has_required_option and not section_is_present:
             if best_match:
                 result['error'].append("Missing required section %s (%s is a possible typo!)." % (section_name, best_match))
             else:
@@ -39,23 +47,31 @@ def validate_config(config_parser, schema, detect_typos=False):
 
         # Section is present but not required, standard validations.
         elif section_is_present:
-            validate_section(config, section_name, schema, detect_typos, result)
+            validate_section(config, section_name, schema, detect_typos, error_on_deprecated, result)
 
     return result
 
 
-def validate_section(config, section_name, schema, detect_typos, result):
+def validate_section(config, section_name, schema, detect_typos, error_on_deprecated, result):
 
     # Required fields validation.
     for option_name in schema[section_name]:
         option_is_required = schema[section_name][option_name].get('required')
+        option_is_deprecated = schema[section_name][option_name].get('deprecated')
         option_is_present = config[section_name].get(option_name)
 
         best_match = None
         if detect_typos and not option_is_present:
             best_match = get_most_probable_typo(option_name, config[section_name].keys())
 
-        if option_is_required and not option_is_present:
+        # Note that if an option is deprecated, we do not perform any further validation!
+        if option_is_deprecated and option_is_present:
+            if error_on_deprecated:
+                result['error'].append("Deprecated option %s is present in section %s!" % (option_name, section_name))
+            else:
+                result['warning'].append("Deprecated option %s is present in section %s!" % (option_name, section_name))
+
+        elif option_is_required and not option_is_present:
             if best_match:
                 result['error'].append(
                     "Missing required option %s in section %s "

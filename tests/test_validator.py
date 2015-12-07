@@ -134,3 +134,41 @@ class ValidatorTestCase(unittest.TestCase):
 
         result = _call_validate(config, schema, detect_typos=True)
         self.assertIn("Possible typo for section section1 : section13.", result['warning'])
+
+    def test_deprecated_section(self):
+        config = "[section1]\nrandom_option=random_value."
+
+        schema = """
+        "section1":
+            "option1":
+                "deprecated": true
+                "required": false
+                "type": "int"
+        """.strip()
+
+        result = _call_validate(config, schema)
+        self.assertIn("Deprecated section section1 is present!", result['warning'])
+
+        result = _call_validate(config, schema, error_on_deprecated=True)
+        self.assertIn("Deprecated section section1 is present!", result['error'])
+
+    def test_deprecated_option(self):
+        config = "[section1]\noption1=random_value."
+
+        schema = """
+        "section1":
+            "option1":
+                "deprecated": true
+                "required": false
+                "type": "str"
+            "option2":
+                "deprecated": false
+                "required": false
+                "type": "int"
+        """.strip()
+
+        result = _call_validate(config, schema)
+        self.assertIn("Deprecated option option1 is present in section section1!", result['warning'])
+
+        result = _call_validate(config, schema, error_on_deprecated=True)
+        self.assertIn("Deprecated option option1 is present in section section1!", result['error'])
