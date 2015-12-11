@@ -6,6 +6,18 @@ from ConfigParser import ConfigParser
 from confirm.utils import config_parser_to_dict
 
 
+def _get_included_schema_sections_options(config, include_all):
+
+    # We want to make sure that the diff is minimal by sticking to
+    # a specific order.
+    for section_name in sorted(config.keys()):
+        for option_name in sorted(config[section_name].keys()):
+
+            option = config[section_name][option_name]
+            if _include_in_config(option) or include_all:
+                yield section_name, option_name
+
+
 def generate_config_parser(config, include_all=False):
     """
     Generates a config parser from a configuration dictionary.
@@ -17,27 +29,25 @@ def generate_config_parser(config, include_all=False):
 
     # The allow_no_value allows us to output commented lines.
     config_parser = ConfigParser(allow_no_value=True)
+    for section_name, option_name in _get_included_schema_sections_options(config, include_all):
 
-    # We want to make sure that the diff is minimal by sticking to
-    # a specific order.
-    for section_name in sorted(config.keys()):
-        for option_name in sorted(config[section_name].keys()):
-            option = config[section_name][option_name]
+        if not config_parser.has_section(section_name):
+            config_parser.add_section(section_name)
 
-            if _include_in_config(option) or include_all:
+        option = config[section_name][option_name]
 
-                if not config_parser.has_section(section_name):
-                    config_parser.add_section(section_name)
+        if option.get('required'):
+            config_parser.set(section_name, '# REQUIRED')
 
-                if option.get('required'):
-                    config_parser.set(section_name, '# REQUIRED')
+        config_parser.set(section_name, '# ' + option.get('description', 'No description provided.'))
 
-                config_parser.set(section_name, '# ' + option.get('description', 'No description provided.'))
+        if option.get('deprecated'):
+            config_parser.set(section_name, '# DEPRECATED')
 
-                option_value = _get_value(option)
-                config_parser.set(section_name, option_name, option_value)
+        option_value = _get_value(option)
+        config_parser.set(section_name, option_name, option_value)
 
-                config_parser.set(section_name, '')
+        config_parser.set(section_name, '')
 
     return config_parser
 
@@ -101,6 +111,10 @@ def generate_documentation(schema):
             if option.get('default'):
 
                 documentation += 'The default value is %s.\n' % option.get('default')
+
+            if option.get('deprecated'):
+
+                documentation += "** This option is deprecated! **\n"
 
     return documentation
 
