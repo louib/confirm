@@ -20,8 +20,8 @@ if [[ ! -z "$set_traces" ]] ; then
     exit 1
 fi
 
-flake8_warnings=$(flake8 --ignore E501 scripts/ confirm/)
+flake8_warnings=$(flake8 --ignore E501 confirm/)
 if [[ $? -gt 0 ]] ; then
-    flake8 --ignore E501 scripts/ confirm/
+    flake8 --ignore E501 confirm/
     exit 1
 fi

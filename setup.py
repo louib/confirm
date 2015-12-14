@@ -22,11 +22,7 @@ setup(
           'Intended Audience :: System Administrators',
           'Topic :: Utilities',
       ],
-      scripts=[
-          'scripts/migrate.py',
-          'scripts/init.py',
-          'scripts/document.py',
-          'scripts/validate.py',
-          'scripts/generate.py',
-          ]
+      entry_points = {
+        'console_scripts': ['confirm = confirm.main:main'],
+      }
      )
