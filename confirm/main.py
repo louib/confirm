@@ -37,9 +37,21 @@ PARSERS['init'] = argparse.ArgumentParser(description='Initialize a confirm sche
 PARSERS['init'].add_argument('conf', help='Configuration file path.')
 
 
+MAIN_HELP = """
+usage: confirm <command> [<args>]
+
+The possible confirm commands are:
+   validate   Validate a configuration file against a confirm schema.
+   migrate    Migrates a configuration file using a confirm schema.
+   document   Generate reStructuredText documentation from a confirm schema.
+   generate   Generates a template configuration file from a confirm schema.
+   init       Initialize a confirm schema from an existing configuration file.
+"""
+
+
 def main():
     if len(sys.argv) < 2:
-        sys.stderr.write("Missing command name!\n")
+        sys.stderr.write(MAIN_HELP.lstrip('\n'))
         sys.exit(1)
 
     command_name = sys.argv[1]
@@ -48,7 +60,7 @@ def main():
     sys.argv = sys.argv[:1] + sys.argv[2:]
 
     if command_name not in PARSERS:
-        sys.stderr.write("Invalid command name.\n")
+        sys.stderr.write(MAIN_HELP.lstrip('\n'))
         sys.exit(1)
 
     args = PARSERS[command_name].parse_args()
