@@ -64,7 +64,7 @@ def main():
         sys.exit(1)
 
     args = PARSERS[command_name].parse_args()
-    locals()[command_name](args)
+    globals()[command_name](args)
 
 
 def validate(args):
