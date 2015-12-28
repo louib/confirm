@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 import argparse
 import sys
-from ConfigParser import SafeConfigParser
-
-import yaml
 
 from confirm.generator import generate_config_parser
 from confirm.generator import generate_documentation
 from confirm.generator import generate_schema_file
 from confirm.generator import append_existing_values
 from confirm.validator import validate_config
+from confirm.utils import load_config_file, load_schema_file
 
 
 PARSERS = {}
@@ -69,10 +67,10 @@ def main():
 
 def validate(args):
 
-    schema = yaml.load(open(args.schema, 'r'))
-    config_parser = SafeConfigParser()
-    config_parser.read(args.conf)
-    result = validate_config(config_parser, schema, args.detect_typos, error_on_deprecated=args.deprecation)
+    schema = load_schema_file(open(args.schema, 'r'))
+    config = load_config_file(args.conf, open(args.conf, 'r').read())
+
+    result = validate_config(config, schema, args.detect_typos, error_on_deprecated=args.deprecation)
 
     for error in result['error']:
         sys.stdout.write('Error : %s\n' % error)
@@ -87,32 +85,28 @@ def validate(args):
 
 
 def migrate(args):
-    schema = yaml.load(open(args.schema, 'r'))
-    config_parser = SafeConfigParser()
-    config_parser.read(args.conf)
 
-    config = append_existing_values(schema, config_parser)
+    schema = load_schema_file(open(args.schema, 'r'))
+    config = load_config_file(args.conf, open(args.conf, 'r').read())
+
+    config = append_existing_values(schema, config)
+
     migrated_config = generate_config_parser(config)
-
     migrated_config.write(sys.stdout)
 
 
 def document(args):
-    schema = yaml.load(open(args.schema, 'r'))
+    schema = load_schema_file(open(args.schema, 'r'))
     documentation = generate_documentation(schema)
     sys.stdout.write(documentation)
 
 
 def generate(args):
-    schema = yaml.load(open(args.schema, 'r'))
+    schema = load_schema_file(open(args.schema, 'r'))
     config_parser = generate_config_parser(schema, include_all=args.include_all)
     config_parser.write(sys.stdout)
 
 
 def init(args):
-    config_parser = SafeConfigParser()
-    config_parser.read(args.conf)
-    config_file_content = open(args.conf, 'r').read()
-
-    schema = generate_schema_file(config_parser, config_file_content)
-    sys.stdout.write(yaml.dump(schema, default_flow_style=False))
+    schema = generate_schema_file(open(args.conf, 'r').read())
+    sys.stdout.write(schema)

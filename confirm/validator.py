@@ -1,15 +1,13 @@
 """
 Main module for the validation functionalities.
 """
-from confirm.utils import config_parser_to_dict, get_most_probable_typo
+from confirm.utils import get_most_probable_typo
 
 
 VALID_TYPES = ('int', 'float', 'bool', 'list', 'str')
 
 
-def validate_config(config_parser, schema, detect_typos=False, error_on_deprecated=False):
-
-    config = config_parser_to_dict(config_parser)
+def validate_config(config, schema, detect_typos=False, error_on_deprecated=False):
 
     result = {
         'error': [],
