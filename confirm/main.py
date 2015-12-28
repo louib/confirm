@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import argparse
 import sys
+
+from colorama import Fore, Style
 
 from confirm.generator import generate_config_parser
 from confirm.generator import generate_documentation
@@ -73,15 +76,17 @@ def validate(args):
     result = validate_config(config, schema, args.detect_typos, error_on_deprecated=args.deprecation)
 
     for error in result['error']:
-        sys.stdout.write('Error : %s\n' % error)
+        print(Fore.RED + 'Error   : %s' % error)
 
     if args.warnings:
         for warning in result['warning']:
-            sys.stdout.write('Warning : %s\n' % warning)
+            print(Fore.YELLOW + 'Warning : %s' % warning)
 
     if args.infos:
         for info in result['info']:
-            sys.stdout.write('Info : %s\n' % info)
+            print(Fore.BLUE + 'Info    : %s' % info)
+
+    print(Style.RESET_ALL, end="")
 
 
 def migrate(args):
