@@ -14,7 +14,10 @@ setup(
       author_email="louisbvarin@gmail.com",
       url='https://github.com/louib/confirm',
       packages=['confirm',],
-      install_requires=['PyYAML>=3.0',],
+      install_requires=[
+          'PyYAML>=3.0',
+          'colorama>=0.3'
+      ],
       classifiers=[
           'Programming Language :: Python',
           'Development Status :: 3 - Alpha',
