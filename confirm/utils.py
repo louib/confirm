@@ -45,7 +45,7 @@ def load_config_file(config_file_path, config_file):
     # At this point we have to guess the format of the configuration file.
     try:
         return yaml.load(config_file)
-    except yaml.YAMLError as ye:
+    except yaml.YAMLError:
         pass
 
     try:
@@ -65,6 +65,7 @@ def load_config_from_ini_file(ini_file_content):
 
 def load_schema_file(schema_file):
     return yaml.load(schema_file)
+
 
 def dump_schema_file(schema):
     return yaml.dump(schema, default_flow_style=False)

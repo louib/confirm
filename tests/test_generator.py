@@ -7,6 +7,19 @@ from confirm import generator
 import yaml
 
 
+class GenerateSchemaTestCase(unittest.TestCase):
+
+    def test_init(self):
+        config_string = "[section]\noption1=value1\noption2=value2"
+        schema_string = generator.generate_schema_file(config_string)
+
+        schema = yaml.load(StringIO(schema_string))
+        self.assertIn('section', schema)
+        self.assertIn('option1', schema['section'])
+        self.assertIn('description', schema['section']['option1']['description'])
+        self.assertEqual('No description provided.', schema['section']['option1']['description'])
+
+
 class GenerateConfigParserTestCase(unittest.TestCase):
 
     def test_empty_config(self):

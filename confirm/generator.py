@@ -3,7 +3,7 @@ Module for automatic generation of configuration templates.
 """
 from ConfigParser import ConfigParser
 
-from confirm.utils import config_parser_to_dict
+from confirm import utils
 
 
 def _get_included_schema_sections_options(config, include_all):
@@ -140,7 +140,7 @@ def generate_schema_file(config_file):
     Generates a basic confirm schema file from a configuration file.
     """
 
-    config = utils.load_ini_file(config_file)
+    config = utils.load_config_from_ini_file(config_file)
     schema = {}
 
     for section_name in config:
