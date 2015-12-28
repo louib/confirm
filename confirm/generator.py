@@ -119,12 +119,10 @@ def generate_documentation(schema):
     return documentation
 
 
-def append_existing_values(schema, config_parser):
+def append_existing_values(schema, config):
     """
     Adds the values of the existing config to the config dictionary.
     """
-
-    config = config_parser_to_dict(config_parser)
 
     for section_name in config:
         for option_name in config[section_name]:
@@ -137,11 +135,12 @@ def append_existing_values(schema, config_parser):
     return schema
 
 
-def generate_schema_file(config_parser, config_file_content):
+def generate_schema_file(config_file):
     """
-    Generates a confirm schema file from a configuration file.
+    Generates a basic confirm schema file from a configuration file.
     """
-    config = config_parser_to_dict(config_parser)
+
+    config = utils.load_ini_file(config_file)
     schema = {}
 
     for section_name in config:
@@ -149,6 +148,4 @@ def generate_schema_file(config_parser, config_file_content):
             schema.setdefault(section_name, {}).setdefault(option_name, {})
             schema[section_name][option_name]['description'] = 'No description provided.'
 
-    # TODO (louib) : Add type inference.
-
-    return schema
+    return utils.dump_schema_file(schema)

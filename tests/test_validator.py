@@ -3,6 +3,7 @@ from ConfigParser import SafeConfigParser
 import unittest
 
 from confirm import validator
+from confirm.utils import load_config_file
 
 import yaml
 
@@ -15,8 +16,9 @@ def _call_validate(config_string, schema_string, **kwargs):
     config_parser.readfp(StringIO(config_string))
 
     schema = yaml.load(StringIO(schema_string))
+    config = load_config_file('.ini', config_string)
 
-    return validator.validate_config(config_parser, schema, **kwargs)
+    return validator.validate_config(config, schema, **kwargs)
 
 
 class ValidatorTestCase(unittest.TestCase):
