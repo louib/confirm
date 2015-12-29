@@ -1,6 +1,13 @@
 from difflib import get_close_matches
-from ConfigParser import SafeConfigParser
-import StringIO
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import ConfigParser as SafeConfigParser
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 import yaml
 
 
@@ -57,7 +64,7 @@ def load_config_file(config_file_path, config_file):
 
 
 def load_config_from_ini_file(ini_file_content):
-    ini_file_buffer = StringIO.StringIO(ini_file_content)
+    ini_file_buffer = StringIO(ini_file_content)
     config_parser = SafeConfigParser()
     config_parser.readfp(ini_file_buffer)
     return config_parser_to_dict(config_parser)

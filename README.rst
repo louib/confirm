@@ -1,6 +1,8 @@
 Confirm
 =======
 
+.. image:: https://api.travis-ci.org/louib/confirm.svg
+
 Simple Python configuration file management.
 
 Confirm validates a configuration file (.INI or YAML format) against a YAML

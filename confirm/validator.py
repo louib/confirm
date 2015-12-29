@@ -14,7 +14,7 @@ def validate_config(config, schema, error_on_deprecated=False):
         'warning': [],
     }
 
-    section_names = set(schema.keys() + config.keys())
+    section_names = set(schema.keys()) | set(config.keys())
     for section_name in section_names:
 
         if not schema.get(section_name):
@@ -59,7 +59,7 @@ def validate_config(config, schema, error_on_deprecated=False):
 def validate_section(config, section_name, schema, error_on_deprecated, result):
 
     # Required fields validation.
-    option_names = set(schema.get(section_name, {}).keys() + config.get(section_name, {}).keys())
+    option_names = set(schema.get(section_name, {}).keys()) | set(config.get(section_name, {}).keys())
     for option_name in option_names:
 
         if not schema.get(section_name, {}).get(option_name):

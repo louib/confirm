@@ -6,7 +6,7 @@ LONG_DESC = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 
 setup(
       name="confirm",
-      version="0.1.0",
+      version="0.1.1",
       description="Simple Python configuration file management.",
       long_description=LONG_DESC,
       license='MIT',

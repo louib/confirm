@@ -1,5 +1,11 @@
-from StringIO import StringIO
-from ConfigParser import SafeConfigParser
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import ConfigParser as SafeConfigParser
 import unittest
 
 from confirm import validator
