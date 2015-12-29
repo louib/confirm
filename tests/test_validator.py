@@ -174,3 +174,29 @@ class ValidatorTestCase(unittest.TestCase):
 
         result = _call_validate(config, schema, error_on_deprecated=True)
         self.assertIn("Deprecated option option1 is present in section section1!", result['error'])
+
+    def test_undefined_section(self):
+        config = "[section1]\noption1=random_value\n[section2]\noption=value"
+
+        schema = """
+        "section1":
+            "option1":
+                "required": false
+                "type": "str"
+        """.strip()
+
+        result = _call_validate(config, schema)
+        self.assertIn("Section section2 is not defined in the schema file.", result['warning'])
+
+    def test_undefined_option(self):
+        config = "[section1]\noption1=random_value\noption2=random_value2"
+
+        schema = """
+        "section1":
+            "option1":
+                "required": false
+                "type": "str"
+        """.strip()
+
+        result = _call_validate(config, schema)
+        self.assertIn("Option option2 of section section1 is not defined in the schema file.", result['warning'])

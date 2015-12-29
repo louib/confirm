@@ -15,7 +15,12 @@ def validate_config(config, schema, detect_typos=False, error_on_deprecated=Fals
         'info': []
     }
 
-    for section_name in schema:
+    section_names = set(schema.keys() + config.keys())
+    for section_name in section_names:
+
+        if not schema.get(section_name):
+            result['warning'].append("Section %s is not defined in the schema file." % section_name)
+            continue
 
         section_options = schema[section_name].values()
         section_has_required_option = any(option for option in section_options if option.get('required'))
@@ -53,7 +58,13 @@ def validate_config(config, schema, detect_typos=False, error_on_deprecated=Fals
 def validate_section(config, section_name, schema, detect_typos, error_on_deprecated, result):
 
     # Required fields validation.
-    for option_name in schema[section_name]:
+    option_names = set(schema.get(section_name, {}).keys() + config.get(section_name, {}).keys())
+    for option_name in option_names:
+
+        if not schema.get(section_name, {}).get(option_name):
+            result['warning'].append("Option %s of section %s is not defined in the schema file." % (option_name, section_name))
+            continue
+
         option_is_required = schema[section_name][option_name].get('required')
         option_is_deprecated = schema[section_name][option_name].get('deprecated')
         option_is_present = config[section_name].get(option_name)
