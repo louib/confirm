@@ -2,9 +2,43 @@ from StringIO import StringIO
 from ConfigParser import SafeConfigParser
 import unittest
 
-from confirm import generator
+from confirm import generator, utils
 
 import yaml
+
+
+def config_from_config_string(config_string):
+    config_parser = SafeConfigParser()
+    config_parser.readfp(StringIO(config_string))
+    return utils.config_parser_to_dict(config_parser)
+
+
+class AppendValuesTestCase(unittest.TestCase):
+
+    def test_append(self):
+        config_string = "[section]\noption1=value1\noption2=value2"
+        schema_string = """
+        "section":
+            "option1":
+                "required": true
+            "option2":
+                "required": true
+            "option3":
+                "required": true
+        """.strip()
+
+        schema = yaml.load(StringIO(schema_string))
+        config = config_from_config_string(config_string)
+
+        migrated_config = generator.append_existing_values(schema, config)
+
+        self.assertIn('section', migrated_config)
+        self.assertIn('option3', migrated_config['section'])
+        self.assertIn('required', migrated_config['section']['option3'])
+        self.assertNotIn('value', migrated_config['section']['option3'])
+
+        self.assertIn('value', migrated_config['section']['option1'])
+        self.assertIn('value', migrated_config['section']['option2'])
 
 
 class GenerateSchemaTestCase(unittest.TestCase):
