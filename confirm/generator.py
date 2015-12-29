@@ -76,8 +76,9 @@ def generate_documentation(schema):
     :returns: String representing the reStructuredText documentation.
     """
 
-    documentation = "Configuration documentation\n"
-    documentation += "---------------------------\n"
+    documentation_title = "Configuration documentation"
+    documentation = documentation_title + "\n"
+    documentation += "=" * len(documentation_title) + '\n'
 
     for section_name in schema:
         section_created = False
@@ -89,12 +90,12 @@ def generate_documentation(schema):
             if not section_created:
                 documentation += '\n'
                 documentation += section_name + '\n'
-                documentation += '=' * len(section_name) + '\n'
+                documentation += '-' * len(section_name) + '\n'
                 section_created = True
 
             documentation += '\n'
             documentation += option_name + '\n'
-            documentation += '=' * len(option_name) + '\n'
+            documentation += '~' * len(option_name) + '\n'
 
             if option.get('required'):
 
