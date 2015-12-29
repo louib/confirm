@@ -18,9 +18,6 @@ PARSERS = {}
 PARSERS['validate'] = argparse.ArgumentParser(description='Validate a configuration file against a confirm schema.', prog="confirm validate")
 PARSERS['validate'].add_argument('schema', help='Schema file path.')
 PARSERS['validate'].add_argument('conf', help='Configuration file path.')
-PARSERS['validate'].add_argument('-t', '--typos', action="store_true", dest="detect_typos", help='Turn on typos detection.')
-PARSERS['validate'].add_argument('-w', '--warnings', action="store_true", dest="warnings", help='Show warnings.')
-PARSERS['validate'].add_argument('-i', '--infos', action="store_true", dest="infos", help='Show infos.')
 PARSERS['validate'].add_argument('-d', '--deprecation', action="store_true", dest="deprecation", help='Handles deprecated options / sections as errors.')
 
 PARSERS['migrate'] = argparse.ArgumentParser(description='Migrates a configuration file using a confirm schema.', prog="confirm migrate")
@@ -73,20 +70,15 @@ def validate(args):
     schema = load_schema_file(open(args.schema, 'r'))
     config = load_config_file(args.conf, open(args.conf, 'r').read())
 
-    result = validate_config(config, schema, args.detect_typos, error_on_deprecated=args.deprecation)
+    result = validate_config(config, schema, error_on_deprecated=args.deprecation)
 
     for error in result['error']:
-        print(Fore.RED + 'Error   : %s' % error)
+        print(Fore.RED + 'Error   : %s' % error, file=sys.stderr)
 
-    if args.warnings:
-        for warning in result['warning']:
-            print(Fore.YELLOW + 'Warning : %s' % warning)
+    for warning in result['warning']:
+        print(Fore.YELLOW + 'Warning : %s' % warning, file=sys.stderr)
 
-    if args.infos:
-        for info in result['info']:
-            print(Fore.BLUE + 'Info    : %s' % info)
-
-    print(Style.RESET_ALL, end="")
+    print(Style.RESET_ALL, end="", file=sys.stderr)
 
 
 def migrate(args):
