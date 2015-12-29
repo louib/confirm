@@ -3,17 +3,53 @@ Confirm
 
 Simple Python configuration file management.
 
-Development installation
-------------------------
+Confirm validates a configuration file (.INI or YAML format) against a YAML
+configuration schema.
 
-.. code::
+Example schema file
+-------------------
 
-  mkvirtualenv confirm
-  pip install -r requirements.txt
+.. code:: yaml
 
-Tests
+  "system":
+      "name":
+          "required": true
+          "description": "Name of the system associated with the server."
+          "type": "str"
+  "http_server":
+      "listen":
+          "required": true
+          "type": "str"
+          "description": "Listening address of the HTTP server."
+          "default": "localhost"
+      "port":
+          "required": true
+          "type": "int"
+          "default": 8088
+          "description": "Port of the HTTP server."
+  "threading":
+      "initial_pool_size":
+          "description": "Initial number of threads in the thread pool."
+          "type": "int"
+          "default": 10
+      "maximum_pool_size":
+          "description": "Maximum number of threads in the thread pool."
+          "type": "int"
+          "default": 100
+          "deprecated": true
+
+
+Usage
 -----
 
-.. code::
+.. code:: bash
 
-  nosetests -sx tests/
+  $ confirm validate examples/confirm.yaml project.conf
+  Error   : Missing required section system.
+  Error   : Missing required section http_server.
+  Warning : Deprecated option maximum_pool_size is present in section threading!
+
+
+License
+-------
+MIT License.

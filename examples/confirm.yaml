@@ -4,23 +4,23 @@
         "description": "Name of the system associated with the server."
         "type": "str"
 "http_server":
-    "hostname":
+    "listen":
         "required": true
         "type": "str"
-        "description": "Hostname the HTTP server is bound to."
+        "description": "Listening address of the HTTP server."
         "default": "localhost"
     "port":
         "required": true
         "type": "int"
         "default": 8088
-        "description": "Port the HTTP server is bound to."
+        "description": "Port of the HTTP server."
 "threading":
     "initial_pool_size":
-        "description": "Initial number of thread in the thread pool."
+        "description": "Initial number of threads in the thread pool."
         "type": "int"
         "default": 10
     "maximum_pool_size":
-        "description": "Maximum number of thread in the thread pool."
+        "description": "Maximum number of threads in the thread pool."
         "type": "int"
         "default": 100
         "deprecated": true
