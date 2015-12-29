@@ -30,7 +30,10 @@ class ValidatorTestCase(unittest.TestCase):
         "sectionb":
             "optionb":
                 "required": true
-        """.strip()
+        "sectiona":
+            "optiona":
+                "type": "int"
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Missing required section sectionb.", result['error'])
@@ -42,7 +45,9 @@ class ValidatorTestCase(unittest.TestCase):
         "section":
             "option2":
                 "required": true
-        """.strip()
+            "option1":
+                "description": "This is a description."
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Missing required option option2 in section section.", result['error'])
@@ -54,7 +59,7 @@ class ValidatorTestCase(unittest.TestCase):
         "section":
             "option1":
                 "required": true
-        """.strip()
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Missing required option option1 in section section.", result['error'])
@@ -67,7 +72,7 @@ class ValidatorTestCase(unittest.TestCase):
             "option1":
                 "required": true
                 "type": "int"
-        """.strip()
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Invalid value for type int : not an int!.", result['error'])
@@ -80,7 +85,7 @@ class ValidatorTestCase(unittest.TestCase):
             "option1":
                 "required": true
                 "type": "bool"
-        """.strip()
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Invalid value for type bool : not a bool!.", result['error'])
@@ -93,7 +98,7 @@ class ValidatorTestCase(unittest.TestCase):
             "option1":
                 "required": true
                 "type": "float"
-        """.strip()
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Invalid value for type float : not a float!.", result['error'])
@@ -106,7 +111,7 @@ class ValidatorTestCase(unittest.TestCase):
             "option1":
                 "required": true
                 "type": "invalid"
-        """.strip()
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Invalid expected type for option option1 : invalid.", result['error'])
@@ -119,9 +124,9 @@ class ValidatorTestCase(unittest.TestCase):
             "option1":
                 "required": false
                 "type": "int"
-        """.strip()
+        """
 
-        result = _call_validate(config, schema, detect_typos=True)
+        result = _call_validate(config, schema)
         self.assertIn("Possible typo for option option1 : option13.", result['warning'])
 
     def test_typo_section_warning(self):
@@ -132,9 +137,9 @@ class ValidatorTestCase(unittest.TestCase):
             "option1":
                 "required": false
                 "type": "int"
-        """.strip()
+        """
 
-        result = _call_validate(config, schema, detect_typos=True)
+        result = _call_validate(config, schema)
         self.assertIn("Possible typo for section section1 : section13.", result['warning'])
 
     def test_deprecated_section(self):
@@ -146,7 +151,7 @@ class ValidatorTestCase(unittest.TestCase):
                 "deprecated": true
                 "required": false
                 "type": "int"
-        """.strip()
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Deprecated section section1 is present!", result['warning'])
@@ -167,7 +172,7 @@ class ValidatorTestCase(unittest.TestCase):
                 "deprecated": false
                 "required": false
                 "type": "int"
-        """.strip()
+        """
 
         result = _call_validate(config, schema)
         self.assertIn("Deprecated option option1 is present in section section1!", result['warning'])
