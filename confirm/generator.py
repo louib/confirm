@@ -1,7 +1,10 @@
 """
 Module for automatic generation of configuration templates.
 """
-from ConfigParser import ConfigParser
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import ConfigParser as SafeConfigParser
 
 from confirm import utils
 
@@ -28,7 +31,7 @@ def generate_config_parser(config, include_all=False):
     """
 
     # The allow_no_value allows us to output commented lines.
-    config_parser = ConfigParser(allow_no_value=True)
+    config_parser = SafeConfigParser(allow_no_value=True)
     for section_name, option_name in _get_included_schema_sections_options(config, include_all):
 
         if not config_parser.has_section(section_name):

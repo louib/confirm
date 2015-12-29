@@ -1,10 +1,16 @@
-from StringIO import StringIO
-from ConfigParser import SafeConfigParser
 import unittest
-
-from confirm import generator, utils
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+try:
+    from ConfigParser import SafeConfigParser
+except ImportError:
+    from configparser import ConfigParser as SafeConfigParser
 
 import yaml
+
+from confirm import generator, utils
 
 
 def config_from_config_string(config_string):
