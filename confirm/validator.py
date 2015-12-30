@@ -105,12 +105,27 @@ def validate_section(config, section_name, schema, error_on_deprecated, result):
             continue
 
         option_schema = schema[section_name][option_name]
-        validate_option_type(option_name, option_value, option_schema, result)
+        config[section_name][option_name] = get_typed_option_value(option_name, option_value, option_schema, result)
+        check_custom_validation(option_name, option_value, option_schema, result)
 
 
-def validate_option_type(option_name, option_value, option_schema, result):
+def check_custom_validation(option_name, option_value, option_schema, result):
+
+    custom_validation = option_schema.get('validation')
+    if not custom_validation:
+        return
+
+    validation_function = eval("lambda x : " + custom_validation)
+    is_valid_option_value = validation_function(option_value)
+
+    if not is_valid_option_value:
+        result['error'].append("Invalid option value for option %s : %s." % (option_name, option_value))
+
+
+def get_typed_option_value(option_name, option_value, option_schema, result):
 
     expected_type = option_schema.get('type')
+    value = None
 
     # No type validation to perform.
     if not expected_type:
@@ -122,11 +137,17 @@ def validate_option_type(option_name, option_value, option_schema, result):
 
     try:
         if expected_type == 'int':
-            int(option_value)
+            value = int(option_value)
         elif expected_type == 'bool':
             if not option_value.lower() in ('true', 'false', '1', '0'):
                 raise ValueError()
+            if option_value.lower() in ('true', '1'):
+                value = True
+            else:
+                value = False
         elif expected_type == 'float':
-            float(option_value)
+            value = float(option_value)
     except ValueError:
         result['error'].append("Invalid value for type %s : %s." % (expected_type, option_value))
+
+    return value

@@ -211,3 +211,31 @@ class ValidatorTestCase(unittest.TestCase):
 
         result = _call_validate(config, schema)
         self.assertIn("Option option2 of section section1 is not defined in the schema file.", result['warning'])
+
+    def test_custom_validation_invalid(self):
+        config = "[section1]\noption1=hey"
+
+        schema = """
+        "section1":
+            "option1":
+                "required": true
+                "type": "str"
+                "validation": "x in ('hey!', 'hi!')"
+        """.strip()
+
+        result = _call_validate(config, schema)
+        self.assertIn("Invalid option value for option option1 : hey.", result['error'])
+
+    def test_custom_validation(self):
+        config = "[section1]\noption1=hey!"
+
+        schema = """
+        "section1":
+            "option1":
+                "required": true
+                "type": "str"
+                "validation": "x in ('hey!', 'hi!')"
+        """.strip()
+
+        result = _call_validate(config, schema)
+        self.assertNotIn("Invalid option value for option option1 : hey.", result['error'])
