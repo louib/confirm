@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-import argparse
 import sys
 
-from colorama import Fore, Style
+import click
 
 from confirm.generator import generate_config_parser
 from confirm.generator import generate_documentation
@@ -13,97 +12,65 @@ from confirm.validator import validate_config
 from confirm.utils import load_config_file, load_schema_file
 
 
-PARSERS = {}
 
-PARSERS['validate'] = argparse.ArgumentParser(description='Validate a configuration file against a confirm schema.', prog="confirm validate")
-PARSERS['validate'].add_argument('schema', help='Schema file path.')
-PARSERS['validate'].add_argument('conf', help='Configuration file path.')
-PARSERS['validate'].add_argument('-d', '--deprecation', action="store_true", dest="deprecation", help='Handles deprecated options / sections as errors.')
-
-PARSERS['migrate'] = argparse.ArgumentParser(description='Migrates a configuration file using a confirm schema.', prog="confirm migrate")
-PARSERS['migrate'].add_argument('schema', help='Schema file path.')
-PARSERS['migrate'].add_argument('conf', help='Configuration file path.')
-
-PARSERS['document'] = argparse.ArgumentParser(description='Generate reStructuredText documentation from a confirm schema.', prog="confirm document")
-PARSERS['document'].add_argument('schema', help='Schema file path.')
-
-PARSERS['generate'] = argparse.ArgumentParser(description='Generates a template configuration file from a confirm schema.', prog="confirm generate")
-PARSERS['generate'].add_argument('schema', help='Schema file path.')
-PARSERS['generate'].add_argument('-a', '--all', dest='include_all', action="store_true", help='Include all the options from the schema.')
-
-PARSERS['init'] = argparse.ArgumentParser(description='Initialize a confirm schema from an existing configuration file.', prog="confirm init")
-PARSERS['init'].add_argument('conf', help='Configuration file path.')
+@click.group()
+def cli():
+    """Simple Python configuration file management."""
+    pass
 
 
-MAIN_HELP = """
-usage: confirm <command> [<args>]
+@cli.command(short_help='Validate a configuration against a schema')
+@click.argument('schema_file', type=click.Path(exists=True, readable=True, dir_okay=False))
+@click.argument('config_file', type=click.Path(exists=True, readable=True, dir_okay=False))
+@click.option('--deprecation', '-d', is_flag=True, default=False, help='Handles deprecated options / sections as errors.')
+def validate(schema_file, config_file, deprecation):
+    '''Validate a configuration file against a confirm schema.'''
 
-The possible confirm commands are:
-   validate   Validate a configuration file against a confirm schema.
-   migrate    Migrates a configuration file using a confirm schema.
-   document   Generate reStructuredText documentation from a confirm schema.
-   generate   Generates a template configuration file from a confirm schema.
-   init       Initialize a confirm schema from an existing configuration file.
-"""
+    schema = load_schema_file(open(schema_file, 'r'))
+    config = load_config_file(config_file, open(config_file, 'r').read())
 
-
-def main():
-    if len(sys.argv) < 2:
-        sys.stderr.write(MAIN_HELP.lstrip('\n'))
-        sys.exit(1)
-
-    command_name = sys.argv[1]
-
-    # Removing the command name from the CLI arguments.
-    sys.argv = sys.argv[:1] + sys.argv[2:]
-
-    if command_name not in PARSERS:
-        sys.stderr.write(MAIN_HELP.lstrip('\n'))
-        sys.exit(1)
-
-    args = PARSERS[command_name].parse_args()
-    globals()[command_name](args)
-
-
-def validate(args):
-
-    schema = load_schema_file(open(args.schema, 'r'))
-    config = load_config_file(args.conf, open(args.conf, 'r').read())
-
-    result = validate_config(config, schema, error_on_deprecated=args.deprecation)
+    result = validate_config(config, schema, error_on_deprecated=deprecation)
 
     for error in result['error']:
-        print(Fore.RED + 'Error   : %s' % error, file=sys.stderr)
+        click.secho('Error   : %s' % error, err=True, fg='red')
 
     for warning in result['warning']:
-        print(Fore.YELLOW + 'Warning : %s' % warning, file=sys.stderr)
+        click.secho('Warning : %s' % warning, err=True, fg='yellow')
 
-    print(Style.RESET_ALL, end="", file=sys.stderr)
+@cli.command(short_help='Migrate a configuration using a schema')
+@click.argument('schema_file', type=click.Path(exists=True, readable=True, dir_okay=False))
+@click.argument('config_file', type=click.Path(exists=True, readable=True, dir_okay=False))
+def migrate(schema_file, config_file):
+    '''Migrates a configuration file using a confirm schema.'''
 
-
-def migrate(args):
-
-    schema = load_schema_file(open(args.schema, 'r'))
-    config = load_config_file(args.conf, open(args.conf, 'r').read())
+    schema = load_schema_file(open(schema_file, 'r'))
+    config = load_config_file(config_file, open(config_file, 'r').read())
 
     config = append_existing_values(schema, config)
 
     migrated_config = generate_config_parser(config)
     migrated_config.write(sys.stdout)
 
-
-def document(args):
-    schema = load_schema_file(open(args.schema, 'r'))
+@cli.command(short_help='Create reST doc from schema')
+@click.argument('schema_file', type=click.Path(exists=True, readable=True, dir_okay=False))
+def document(schema_file):
+    '''Generate reStructuredText documentation from a confirm schema.'''
+    schema = load_schema_file(open(schema_file, 'r'))
     documentation = generate_documentation(schema)
     sys.stdout.write(documentation)
 
-
-def generate(args):
-    schema = load_schema_file(open(args.schema, 'r'))
-    config_parser = generate_config_parser(schema, include_all=args.include_all)
+@cli.command(short_help='Create conf template from schema')
+@click.argument('schema_file', type=click.Path(exists=True, readable=True, dir_okay=False))
+@click.option('--all-options', '-a', is_flag=True, default=False, help='Include all options from the schema.')
+def generate(schema_file, all_options):
+    '''Generates a template configuration file from a confirm schema.'''
+    schema = load_schema_file(open(schema_file, 'r'))
+    config_parser = generate_config_parser(schema, include_all=all_options)
     config_parser.write(sys.stdout)
 
-
-def init(args):
-    schema = generate_schema_file(open(args.conf, 'r').read())
+@cli.command(short_help='Initialize schema from existing conf')
+@click.argument('config_file', type=click.Path(exists=True, readable=True, dir_okay=False))
+def init(config_file):
+    '''Initialize a confirm schema from an existing configuration file.'''
+    schema = generate_schema_file(open(config_file, 'r').read())
     sys.stdout.write(schema)

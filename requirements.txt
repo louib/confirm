@@ -2,3 +2,4 @@ PyYAML>=3.0
 nose>=1.0
 flake8>=2.5
 colorama>=0.3
+click>=5.0

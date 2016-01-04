@@ -16,7 +16,8 @@ setup(
       packages=['confirm',],
       install_requires=[
           'PyYAML>=3.0',
-          'colorama>=0.3'
+          'colorama>=0.3',
+          'click>=5.0'
       ],
       classifiers=[
           'Programming Language :: Python',
@@ -24,8 +25,9 @@ setup(
           'Intended Audience :: Developers',
           'Intended Audience :: System Administrators',
           'Topic :: Utilities',
+          'License :: OSI Approved :: MIT License',
       ],
       entry_points = {
-        'console_scripts': ['confirm = confirm.main:main'],
+        'console_scripts': ['confirm = confirm.main:cli'],
       }
      )
