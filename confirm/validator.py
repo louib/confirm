@@ -2,9 +2,16 @@
 Main module for the validation functionalities.
 """
 from confirm.utils import get_most_probable_typo
+from confirm.utils import load_config_file, load_schema_file
 
 
 VALID_TYPES = ('int', 'float', 'bool', 'list', 'str')
+
+
+def load_validation_from_files(schema_file_path, config_file_path):
+    schema = load_schema_file(open(schema_file_path, 'r'))
+    config = load_config_file(config_file_path, open(config_file_path, 'r').read())
+    return Validation(config, schema)
 
 
 class Validation(object):
