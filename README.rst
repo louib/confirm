@@ -52,6 +52,18 @@ Usage
   Warning : Deprecated option maximum_pool_size is present in section threading!
 
 
+Confirm can also be used for validation as a Python library:
+
+.. code:: python
+
+  from confirm.validator import load_validation_from_files
+  ...
+
+    result = load_validation_from_files(schema_file_path, config_file_path)
+    result.validate()
+    print(result.is_valid())
+
+
 License
 -------
 MIT License.

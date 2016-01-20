@@ -8,9 +8,8 @@ from confirm.generator import generate_config_parser
 from confirm.generator import generate_documentation
 from confirm.generator import generate_schema_file
 from confirm.generator import append_existing_values
-from confirm.validator import validate_config
+from confirm.validator import load_validation_from_files
 from confirm.utils import load_config_file, load_schema_file
-
 
 
 @click.group()
@@ -26,16 +25,15 @@ def cli():
 def validate(schema_file, config_file, deprecation):
     '''Validate a configuration file against a confirm schema.'''
 
-    schema = load_schema_file(open(schema_file, 'r'))
-    config = load_config_file(config_file, open(config_file, 'r').read())
+    result = load_validation_from_files(schema_file, config_file)
+    result.validate(error_on_deprecated=deprecation)
 
-    result = validate_config(config, schema, error_on_deprecated=deprecation)
-
-    for error in result['error']:
+    for error in result.errors():
         click.secho('Error   : %s' % error, err=True, fg='red')
 
-    for warning in result['warning']:
+    for warning in result.warnings():
         click.secho('Warning : %s' % warning, err=True, fg='yellow')
+
 
 @cli.command(short_help='Migrate a configuration using a schema')
 @click.argument('schema_file', type=click.Path(exists=True, readable=True, dir_okay=False))
@@ -51,6 +49,7 @@ def migrate(schema_file, config_file):
     migrated_config = generate_config_parser(config)
     migrated_config.write(sys.stdout)
 
+
 @cli.command(short_help='Create reST doc from schema')
 @click.argument('schema_file', type=click.Path(exists=True, readable=True, dir_okay=False))
 def document(schema_file):
@@ -58,6 +57,7 @@ def document(schema_file):
     schema = load_schema_file(open(schema_file, 'r'))
     documentation = generate_documentation(schema)
     sys.stdout.write(documentation)
+
 
 @cli.command(short_help='Create conf template from schema')
 @click.argument('schema_file', type=click.Path(exists=True, readable=True, dir_okay=False))
@@ -67,6 +67,7 @@ def generate(schema_file, all_options):
     schema = load_schema_file(open(schema_file, 'r'))
     config_parser = generate_config_parser(schema, include_all=all_options)
     config_parser.write(sys.stdout)
+
 
 @cli.command(short_help='Initialize schema from existing conf')
 @click.argument('config_file', type=click.Path(exists=True, readable=True, dir_okay=False))
