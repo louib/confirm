@@ -8,7 +8,7 @@ from confirm.generator import generate_config_parser
 from confirm.generator import generate_documentation
 from confirm.generator import generate_schema_file
 from confirm.generator import append_existing_values
-from confirm.validator import load_validation_from_files
+from confirm.validator import validator_from_config_file
 from confirm.utils import load_config_file, load_schema_file
 
 
@@ -25,7 +25,7 @@ def cli():
 def validate(schema_file, config_file, deprecation):
     '''Validate a configuration file against a confirm schema.'''
 
-    result = load_validation_from_files(schema_file, config_file)
+    result = validator_from_config_file(config_file, schema_file)
     result.validate(error_on_deprecated=deprecation)
 
     for error in result.errors():
