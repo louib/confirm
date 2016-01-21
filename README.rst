@@ -2,11 +2,22 @@ Confirm
 =======
 
 .. image:: https://api.travis-ci.org/louib/confirm.svg
+  :target: https://travis-ci.org/louib/confirm
+.. image:: https://img.shields.io/pypi/v/confirm.svg
+  :target: https://pypi.python.org/pypi/confirm/
 
 Simple Python configuration file management.
 
 Confirm validates a configuration file (.INI or YAML format) against a YAML
 configuration schema.
+
+Installation
+------------
+
+.. code:: bash
+
+  $ pip install confirm
+
 
 Example schema file
 -------------------
