@@ -56,10 +56,10 @@ Confirm can also be used for validation as a Python library:
 
 .. code:: python
 
-  from confirm.validator import load_validation_from_files
+  from confirm.validator import validator_from_config_file
   ...
 
-    result = load_validation_from_files(schema_file_path, config_file_path)
+    result = validator_from_config_file(schema_file_path, config_file_path)
     result.validate()
     print(result.is_valid())
 
