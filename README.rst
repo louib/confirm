@@ -59,7 +59,7 @@ Confirm can also be used for validation as a Python library:
   from confirm.validator import validator_from_config_file
   ...
 
-    result = validator_from_config_file(schema_file_path, config_file_path)
+    result = validator_from_config_file(config_file_path, schema_file_path)
     result.validate()
     print(result.is_valid())
 
