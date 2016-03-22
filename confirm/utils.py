@@ -1,8 +1,8 @@
 from difflib import get_close_matches
 try:
-    from ConfigParser import SafeConfigParser
+    from ConfigParser import RawConfigParser
 except ImportError:
-    from configparser import ConfigParser as SafeConfigParser
+    from configparser import ConfigParser
 try:
     from StringIO import StringIO
 except ImportError:
@@ -43,10 +43,10 @@ def load_config_file(config_file_path, config_file):
     :returns: Dictionary representation of the configuration file.
     """
 
-    if config_file_path.endswith(".yaml"):
+    if config_file_path.lower().endswith(".yaml"):
         return yaml.load(config_file)
 
-    if any(config_file_path.endswith(extension) for extension in INI_FILE_EXTENSIONS):
+    if any(config_file_path.lower().endswith(extension) for extension in INI_FILE_EXTENSIONS):
         return load_config_from_ini_file(config_file)
 
     # At this point we have to guess the format of the configuration file.
@@ -65,7 +65,12 @@ def load_config_file(config_file_path, config_file):
 
 def load_config_from_ini_file(ini_file_content):
     ini_file_buffer = StringIO(ini_file_content)
-    config_parser = SafeConfigParser()
+
+    try:
+        config_parser = ConfigParser(interpolation=None)
+    except NameError:
+        config_parser = RawConfigParser()
+
     config_parser.readfp(ini_file_buffer)
     return config_parser_to_dict(config_parser)
 
